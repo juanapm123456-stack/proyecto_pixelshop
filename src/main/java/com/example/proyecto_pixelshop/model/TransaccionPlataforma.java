@@ -33,12 +33,12 @@ public class TransaccionPlataforma {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
     
-    // ⭐ Relación 1:1 con Compra (SIEMPRE - incluso para PAGO_PUBLICACION si aplica)
+    //  Relación 1:1 con Compra (SIEMPRE - incluso para PAGO_PUBLICACION si aplica)
     @OneToOne
     @JoinColumn(name = "compra_id", unique = true)
     private Compra compra;
     
-    // ⭐ NO tiene juego_id - se obtiene desde compra.getJuego()
+    //  NO tiene juego_id - se obtiene desde compra.getJuego()
     
     // Constructores
     public TransaccionPlataforma() {}
@@ -73,7 +73,7 @@ public class TransaccionPlataforma {
         validarRelaciones();
     }
     
-    // ⭐ Validación: COMISION_VENTA requiere Compra
+    //  Validación: COMISION_VENTA requiere Compra
     private void validarRelaciones() {
         if (tipoTransaccion == TipoTransaccion.COMISION_VENTA) {
             if (compra == null) {

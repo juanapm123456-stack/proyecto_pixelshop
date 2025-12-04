@@ -57,18 +57,18 @@ public class GoogleOAuth2UserService extends DefaultOAuth2UserService {
             
             // Enviar email de bienvenida
             try {
-                System.out.println("📧 [OAuth2] Intentando enviar email de bienvenida a: " + usuario.getEmail());
+                System.out.println(" [OAuth2] Intentando enviar email de bienvenida a: " + usuario.getEmail());
                 emailService.enviarEmailBienvenida(usuario);
-                System.out.println("✅ [OAuth2] Email de bienvenida enviado correctamente");
+                System.out.println(" [OAuth2] Email de bienvenida enviado correctamente");
             } catch (Exception e) {
-                System.err.println("❌ [OAuth2] Error al enviar email de bienvenida: " + e.getMessage());
+                System.err.println(" [OAuth2] Error al enviar email de bienvenida: " + e.getMessage());
                 e.printStackTrace();
             }
             
-            System.out.println("✅ Nuevo usuario creado vía Google OAuth2: " + email + " (ID: " + usuario.getId() + ")");
+            System.out.println(" Nuevo usuario creado vía Google OAuth2: " + email + " (ID: " + usuario.getId() + ")");
         } else {
             // Usuario existe y está activo
-            System.out.println("✅ Usuario existente iniciado sesión vía Google OAuth2: " + email + " (ID: " + usuario.getId() + ")");
+            System.out.println(" Usuario existente iniciado sesión vía Google OAuth2: " + email + " (ID: " + usuario.getId() + ")");
         }
 
         // Retornar usuario con rol asignado

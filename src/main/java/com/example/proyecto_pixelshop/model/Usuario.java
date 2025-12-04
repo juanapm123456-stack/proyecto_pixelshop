@@ -54,7 +54,7 @@ public class Usuario {
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL)
     private List<Juego> juegosPublicados = new ArrayList<>();
     
-    // ⭐ Ahora apunta a "usuario" en lugar de "proveedor"
+    
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<TransaccionProveedor> transacciones = new ArrayList<>();
     

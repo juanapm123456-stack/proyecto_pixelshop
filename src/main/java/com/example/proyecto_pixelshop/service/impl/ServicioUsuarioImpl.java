@@ -90,7 +90,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
         
         String emailOriginal = usuario.getEmail();
-        System.out.println("🗑️ Eliminando usuario ID " + id + " (" + emailOriginal + ")");
+        System.out.println(" Eliminando usuario ID " + id + " (" + emailOriginal + ")");
         System.out.println("   - Compras a preservar: " + usuario.getCompras().size());
         System.out.println("   - Juegos a desactivar: " + usuario.getJuegosPublicados().size());
         
@@ -100,9 +100,9 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
             int cantidadJuegos = usuario.getJuegosPublicados().size();
             for (var juego : usuario.getJuegosPublicados()) {
                 juego.setActivo(false);
-                System.out.println("   ⚠️ Juego desactivado: " + juego.getTitulo());
+                System.out.println("    Juego desactivado: " + juego.getTitulo());
             }
-            System.out.println("   ✅ " + cantidadJuegos + " juegos desactivados (no aparecerán en el catálogo)");
+            System.out.println("    " + cantidadJuegos + " juegos desactivados (no aparecerán en el catálogo)");
         }
         
         // Modificar el email para liberar el email original
@@ -114,11 +114,11 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         usuario.setActivo(false);
         usuarioRepository.save(usuario);
         
-        System.out.println("✅ Usuario marcado como inactivo (borrado lógico)");
-        System.out.println("   ✅ Email modificado: " + emailOriginal + " → " + emailEliminado);
-        System.out.println("   ✅ Email liberado para crear cuenta nueva");
-        System.out.println("   ✅ Compras y transacciones preservadas");
-        System.out.println("   ✅ Los clientes conservan sus juegos comprados");
+        System.out.println(" Usuario marcado como inactivo (borrado lógico)");
+        System.out.println("  Email modificado: " + emailOriginal + " → " + emailEliminado);
+        System.out.println("  Email liberado para crear cuenta nueva");
+        System.out.println("  Compras y transacciones preservadas");
+        System.out.println("  Los clientes conservan sus juegos comprados");
     }
     
     // Obtiene la lista completa de todos los usuarios ACTIVOS (excluye eliminados)

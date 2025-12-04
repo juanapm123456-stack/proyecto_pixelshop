@@ -75,7 +75,7 @@ public class Juego {
     @OneToMany(mappedBy = "juego", cascade = CascadeType.ALL)
     private List<Compra> compras = new ArrayList<>();
     
-    // ⭐ Ya no tiene relación directa con TransaccionPlataforma
+    //  Ya no tiene relación directa con TransaccionPlataforma
     // Las transacciones se obtienen desde las compras
     
     // Constructores

@@ -43,7 +43,7 @@ public interface TransaccionPlataformaRepository extends JpaRepository<Transacci
     @Query("SELECT t FROM TransaccionPlataforma t WHERE t.tipoTransaccion = 'COMISION_VENTA' AND t.compra.id = :compraId")
     List<TransaccionPlataforma> findComisionByCompraId(Integer compraId);
 
-    // ⭐ NOTA: Ya no se puede buscar por juego_id directamente
+    //  NOTA: Ya no se puede buscar por juego_id directamente
     // Para buscar pagos de publicación, usar descripción o usuario
     @Query("SELECT t FROM TransaccionPlataforma t WHERE t.tipoTransaccion = 'PAGO_PUBLICACION' AND t.usuario.id = :usuarioId")
     List<TransaccionPlataforma> findPagoPublicacionByUsuarioId(Integer usuarioId);

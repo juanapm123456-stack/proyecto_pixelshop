@@ -64,7 +64,7 @@ public class ServicioTransaccionPlataformaImpl implements IServicioTransaccionPl
     @Override
     @Transactional(readOnly = true)
     public List<TransaccionPlataforma> buscarPagoPublicacionPorJuego(Integer juegoId) {
-        // ⭐ Ya no se puede buscar por juego_id directamente
+        //  Ya no se puede buscar por juego_id directamente
         // Buscar por usuario (proveedor del juego)
         Juego juego = juegoRepository.findById(juegoId)
             .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
@@ -79,12 +79,12 @@ public class ServicioTransaccionPlataformaImpl implements IServicioTransaccionPl
         
         Double porcentajeComision = 15.0;
         
-        // ⭐ Usar constructor con Compra (relación 1:1)
+        // Usa constructor con Compra (relación 1:1)
         TransaccionPlataforma transaccion = new TransaccionPlataforma(
             TipoTransaccion.COMISION_VENTA,
             importe,
             compra.getJuego().getProveedor(),  // Usuario es el proveedor
-            compra,  // ⭐ Relación 1:1 con Compra
+            compra,  //  Relación 1:1 con Compra
             "Comisión 15% por venta de " + compra.getJuego().getTitulo(),
             porcentajeComision
         );
@@ -98,7 +98,7 @@ public class ServicioTransaccionPlataformaImpl implements IServicioTransaccionPl
         Juego juego = juegoRepository.findById(juegoId)
             .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
         
-        // ⭐ Constructor simplificado (sin Compra, sin Juego directo)
+        //  Constructor simplificado (sin Compra, sin Juego directo)
         TransaccionPlataforma transaccion = new TransaccionPlataforma(
             TipoTransaccion.PAGO_PUBLICACION,
             importe,

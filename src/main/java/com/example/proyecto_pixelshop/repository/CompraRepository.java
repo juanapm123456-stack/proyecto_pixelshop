@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface CompraRepository extends JpaRepository<Compra, Integer> {
 
-    // ✅ Spring Data JPA genera automáticamente estas queries
+    
     
     // Buscar por usuario ordenado por fecha
     List<Compra> findByUsuarioOrderByFechaCompraDesc(Usuario usuario);
@@ -46,7 +46,7 @@ public interface CompraRepository extends JpaRepository<Compra, Integer> {
     @Transactional
     void deleteByUsuario(Usuario usuario);
 
-    // ⚠️ Solo queries complejas necesitan @Query
+   
     
     // Sumar ventas totales
     @Query("SELECT SUM(c.precioPagado) FROM Compra c WHERE c.estado = 'COMPLETADA'")

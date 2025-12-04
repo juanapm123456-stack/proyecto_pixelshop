@@ -133,7 +133,7 @@ public class ProveedorController extends BaseController {
                 archivoNombre = archivoJuego.getOriginalFilename();
                 archivoTamanio = (int) (archivoJuego.getSize() / (1024 * 1024)); // Convertir a MB
                 
-                System.out.println("📦 Archivo subido: " + archivoNombre + " (" + archivoTamanio + " MB)");
+                System.out.println(" Archivo subido: " + archivoNombre + " (" + archivoTamanio + " MB)");
             }
             
             // Crear el juego
@@ -440,7 +440,7 @@ public class ProveedorController extends BaseController {
                 juego.setArchivoNombre(archivoNombre);
                 juego.setArchivoTamanioBytes(archivoTamanio);
                 
-                System.out.println("📦 Archivo actualizado: " + archivoNombre + " (" + archivoTamanio + " MB)");
+                System.out.println(" Archivo actualizado: " + archivoNombre + " (" + archivoTamanio + " MB)");
             }
             
             // NO ACTUALIZAR: título, precio, proveedor, fecha publicación
@@ -577,8 +577,8 @@ public class ProveedorController extends BaseController {
                 usuarioRepository.save(proveedor);
                 
                 String mensajeExito = transaccionesPendientes.size() == 1
-                    ? String.format("✅ Pago de %.2f€ enviado exitosamente a %s mediante PayPal", totalPendiente, emailPaypal)
-                    : String.format("✅ Pago de %.2f€ (%d transacciones) enviado exitosamente a %s mediante PayPal", 
+                    ? String.format(" Pago de %.2f€ enviado exitosamente a %s mediante PayPal", totalPendiente, emailPaypal)
+                    : String.format(" Pago de %.2f€ (%d transacciones) enviado exitosamente a %s mediante PayPal", 
                         totalPendiente, transaccionesPendientes.size(), emailPaypal);
                 
                 redirectAttributes.addFlashAttribute("success", mensajeExito);
@@ -599,7 +599,7 @@ public class ProveedorController extends BaseController {
                 }
                 
                 redirectAttributes.addFlashAttribute("success", 
-                    String.format("✅ Solicitud de transferencia de %.2f€ registrada. Se procesará en 2-3 días hábiles a la cuenta: %s", 
+                    String.format(" Solicitud de transferencia de %.2f€ registrada. Se procesará en 2-3 días hábiles a la cuenta: %s", 
                         totalPendiente, numeroTarjeta));
             } else {
                 redirectAttributes.addFlashAttribute("error", "Método de cobro no válido");
@@ -608,7 +608,7 @@ public class ProveedorController extends BaseController {
             
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", 
-                "❌ Error al procesar el pago: " + e.getMessage());
+                " Error al procesar el pago: " + e.getMessage());
             e.printStackTrace();
         }
         

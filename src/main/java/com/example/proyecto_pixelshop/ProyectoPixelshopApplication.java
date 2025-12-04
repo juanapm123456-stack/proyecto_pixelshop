@@ -20,11 +20,11 @@ public class ProyectoPixelshopApplication {
 		return args -> {
 			// TEMPORAL: Eliminar admin existente para recrearlo con contraseña encriptada
 			if (usuarioService.existeEmail("admin@pixelshop.com")) {
-				System.out.println("⚠️  Eliminando admin existente para recrearlo...");
+				System.out.println("  Eliminando admin existente para recrearlo...");
 				Usuario adminViejo = usuarioService.buscarPorEmail("admin@pixelshop.com").orElse(null);
 				if (adminViejo != null) {
 					usuarioService.eliminar(adminViejo.getId());
-					System.out.println("✅ Admin eliminado");
+					System.out.println(" Admin eliminado");
 				}
 			}
 			
@@ -38,7 +38,7 @@ public class ProyectoPixelshopApplication {
 			admin.setEmailPaypal("pixelshop@business.example.com"); // Email PayPal de la plataforma
 			
 			usuarioService.registrar(admin);
-			System.out.println("✅ Usuario ADMIN creado exitosamente");
+			System.out.println("   Usuario ADMIN creado exitosamente");
 			System.out.println("   Email: admin@pixelshop.com");
 			System.out.println("   Contraseña: admin123");
 			System.out.println("   PayPal Plataforma: pixelshop@business.example.com");

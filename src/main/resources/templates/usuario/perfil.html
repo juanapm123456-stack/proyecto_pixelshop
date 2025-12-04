@@ -85,8 +85,8 @@
     
     <script>
     function confirmarEliminacion() {
-        if (confirm('⚠️ ¿ESTÁS SEGURO?\n\nEsta acción ELIMINARÁ permanentemente:\n• Tu cuenta\n• Todas tus compras\n• Tu biblioteca de juegos\n• Todos tus datos\n\n¿Deseas continuar?')) {
-            if (confirm('⚠️ ÚLTIMA CONFIRMACIÓN\n\n¿Realmente quieres eliminar tu cuenta de forma PERMANENTE?')) {
+        if (confirm(' ¿ESTÁS SEGURO?\n\nEsta acción ELIMINARÁ permanentemente:\n• Tu cuenta\n• Todas tus compras\n• Tu biblioteca de juegos\n• Todos tus datos\n\n¿Deseas continuar?')) {
+            if (confirm(' ÚLTIMA CONFIRMACIÓN\n\n¿Realmente quieres eliminar tu cuenta de forma PERMANENTE?')) {
                 // Enviar petición DELETE
                 fetch('/perfil/eliminar', {
                     method: 'DELETE',
@@ -96,14 +96,14 @@
                 })
                 .then(response => {
                     if (response.ok) {
-                        alert('✅ Cuenta eliminada correctamente. Serás redirigido al inicio.');
+                        alert(' Cuenta eliminada correctamente. Serás redirigido al inicio.');
                         window.location.href = '/logout';
                     } else {
-                        alert('❌ Error al eliminar la cuenta. Por favor, intenta de nuevo.');
+                        alert(' Error al eliminar la cuenta. Por favor, intenta de nuevo.');
                     }
                 })
                 .catch(error => {
-                    alert('❌ Error: ' + error.message);
+                    alert(' Error: ' + error.message);
                 });
             }
         }

@@ -68,11 +68,11 @@ public class AuthController {
         
         // Enviar email de bienvenida
         try {
-            System.out.println("📧 Intentando enviar email de bienvenida a: " + usuario.getEmail());
+            System.out.println(" Intentando enviar email de bienvenida a: " + usuario.getEmail());
             emailService.enviarEmailBienvenida(usuario);
-            System.out.println("✅ Email de bienvenida enviado correctamente");
+            System.out.println(" Email de bienvenida enviado correctamente");
         } catch (Exception e) {
-            System.err.println("❌ Error al enviar email de bienvenida: " + e.getMessage());
+            System.err.println(" Error al enviar email de bienvenida: " + e.getMessage());
             e.printStackTrace();
         }
         
@@ -93,14 +93,14 @@ public class AuthController {
             // Guardar el contexto de seguridad en la sesión HTTP
             securityContextRepository.saveContext(securityContext, request, response);
             
-            System.out.println("✅ Usuario autenticado automáticamente después del registro: " + usuarioRegistrado.getEmail());
+            System.out.println(" Usuario autenticado automáticamente después del registro: " + usuarioRegistrado.getEmail());
             
             // Redirigir al catálogo con mensaje de bienvenida
             redirectAttributes.addFlashAttribute("success", "¡Bienvenido a PixelShop! Tu cuenta ha sido creada exitosamente");
             return "redirect:/";
             
         } catch (Exception e) {
-            System.err.println("❌ Error al autenticar usuario después del registro: " + e.getMessage());
+            System.err.println(" Error al autenticar usuario después del registro: " + e.getMessage());
             e.printStackTrace();
             // Si falla la autenticación automática, redirigir al login
             redirectAttributes.addFlashAttribute("error", "Registro exitoso pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.");

@@ -12,17 +12,17 @@ public class TransaccionProveedor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
-    // ⭐ Relación 1:1 con Compra (UNIQUE garantiza que solo hay 1 transacción por compra)
+    //  Relación 1:1 con Compra (UNIQUE garantiza que solo hay 1 transacción por compra)
     @OneToOne
     @JoinColumn(name = "compra_id", nullable = false, unique = true)
     private Compra compra;
     
-    // ⭐ Relación con Usuario (proveedor)
+    //  Relación con Usuario (proveedor)
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
     
-    // ⭐ NO tiene juego_id - se obtiene desde compra.getJuego()
+    //  NO tiene juego_id - se obtiene desde compra.getJuego()
     
     @Column(name = "importe_bruto", nullable = false)
     private Double importeBruto;

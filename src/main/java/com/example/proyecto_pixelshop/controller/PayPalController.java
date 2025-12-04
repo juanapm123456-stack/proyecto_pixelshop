@@ -95,10 +95,10 @@ public class PayPalController extends BaseController {
             
             // Capturar el pago
             Order order = payPalService.capturarPago(token);
-            System.out.println("✅ Pago capturado exitosamente");
+            System.out.println(" Pago capturado exitosamente");
 
             if (payPalService.esPaymentCompletado(order)) {
-                System.out.println("✅ Payment status: COMPLETED");
+                System.out.println(" Payment status: COMPLETED");
                 
                 // Obtener datos
                 String email = obtenerEmailDelUsuario(authentication);
@@ -106,31 +106,31 @@ public class PayPalController extends BaseController {
                 
                 Usuario usuario = usuarioService.buscarPorEmail(email)
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-                System.out.println("✅ Usuario encontrado ID: " + usuario.getId());
+                System.out.println(" Usuario encontrado ID: " + usuario.getId());
 
                 Juego juego = juegoService.buscarPorId(juegoId)
                     .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
-                System.out.println("✅ Juego encontrado: " + juego.getTitulo());
+                System.out.println(" Juego encontrado: " + juego.getTitulo());
 
                 // Usar el precio del juego como monto pagado (más confiable que parsear respuesta de PayPal)
                 Double montoPagado = juego.getPrecio();
-                System.out.println("💰 Monto pagado: " + montoPagado + "€");
+                System.out.println(" Monto pagado: " + montoPagado + "€");
 
                 // Crear y completar compra directamente (auto-crea transacciones)
-                System.out.println("📝 Creando compra en BD...");
+                System.out.println(" Creando compra en BD...");
                 Compra compra = compraService.crear(usuario, juego, montoPagado, "Pago Online", order.id());
-                System.out.println("✅ Compra creada ID: " + compra.getId() + " - Estado: " + compra.getEstado());
+                System.out.println(" Compra creada ID: " + compra.getId() + " - Estado: " + compra.getEstado());
                 
-                System.out.println("🔄 Completando compra...");
+                System.out.println(" Completando compra...");
                 compraService.completar(compra.getId());
-                System.out.println("✅ Compra completada exitosamente");
+                System.out.println(" Compra completada exitosamente");
                 
                 // Enviar email de confirmación
                 try {
                     emailService.enviarConfirmacionCompra(compra);
-                    System.out.println("✅ Email de confirmación enviado correctamente");
+                    System.out.println(" Email de confirmación enviado correctamente");
                 } catch (Exception e) {
-                    System.err.println("❌ Error al enviar email de confirmación: " + e.getMessage());
+                    System.err.println(" Error al enviar email de confirmación: " + e.getMessage());
                 }
                 
                 System.out.println("=== FIN PayPal Success (ÉXITO) ===");
@@ -138,14 +138,14 @@ public class PayPalController extends BaseController {
                 return "redirect:/mi-biblioteca";
                 
             } else {
-                System.err.println("❌ Payment status NO es COMPLETED: " + order.status());
+                System.err.println(" Payment status NO es COMPLETED: " + order.status());
                 redirectAttributes.addFlashAttribute("error", "El pago no se completó correctamente");
                 return "redirect:/paypal/checkout/" + juegoId;
             }
 
         } catch (Exception e) {
-            System.err.println("❌ ERROR en PayPal Success: " + e.getClass().getName());
-            System.err.println("❌ Mensaje: " + e.getMessage());
+            System.err.println(" ERROR en PayPal Success: " + e.getClass().getName());
+            System.err.println(" Mensaje: " + e.getMessage());
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Error al procesar el pago: " + e.getMessage());
             return "redirect:/paypal/checkout/" + juegoId;
@@ -178,19 +178,19 @@ public class PayPalController extends BaseController {
 
         switch (lastDigits) {
             case "1111": // Tarjeta rechazada
-                redirectAttributes.addFlashAttribute("error", "❌ Tarjeta rechazada. Por favor, usa otro método de pago.");
+                redirectAttributes.addFlashAttribute("error", " Tarjeta rechazada. Por favor, usa otro método de pago.");
                 return "redirect:/paypal/checkout/" + juegoId;
 
             case "2222": // Tarjeta caducada
-                redirectAttributes.addFlashAttribute("error", "❌ Tarjeta caducada. Verifica la fecha de expiración.");
+                redirectAttributes.addFlashAttribute("error", " Tarjeta caducada. Verifica la fecha de expiración.");
                 return "redirect:/paypal/checkout/" + juegoId;
 
             case "3333": // Fondos insuficientes
-                redirectAttributes.addFlashAttribute("error", "❌ Fondos insuficientes. No se pudo completar la transacción.");
+                redirectAttributes.addFlashAttribute("error", " Fondos insuficientes. No se pudo completar la transacción.");
                 return "redirect:/paypal/checkout/" + juegoId;
 
             default: // Pago exitoso
-                redirectAttributes.addFlashAttribute("success", "✅ Pago procesado exitosamente con tarjeta");
+                redirectAttributes.addFlashAttribute("success", " Pago procesado exitosamente con tarjeta");
                 return "redirect:/compra/confirmar/" + juegoId;
         }
     }

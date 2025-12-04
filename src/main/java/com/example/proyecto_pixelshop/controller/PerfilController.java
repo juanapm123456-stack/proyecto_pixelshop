@@ -64,15 +64,15 @@ public class PerfilController extends BaseController {
             Usuario usuario = usuarioService.buscarPorEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
             
-            System.out.println("🗑️ Eliminando cuenta del usuario: " + usuario.getEmail());
+            System.out.println(" Eliminando cuenta del usuario: " + usuario.getEmail());
             
             // El servicio maneja las eliminaciones en cascada automáticamente (cascade = ALL)
             usuarioService.eliminar(usuario.getId());
-            System.out.println("✅ Usuario eliminado correctamente");
+            System.out.println(" Usuario eliminado correctamente");
             
             return "OK";
         } catch (Exception e) {
-            System.err.println("❌ Error al eliminar cuenta: " + e.getMessage());
+            System.err.println(" Error al eliminar cuenta: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Error al eliminar cuenta: " + e.getMessage());
         }

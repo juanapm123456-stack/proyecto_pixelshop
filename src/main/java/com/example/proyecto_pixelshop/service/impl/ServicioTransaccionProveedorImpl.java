@@ -74,7 +74,7 @@ public class ServicioTransaccionProveedorImpl implements IServicioTransaccionPro
         Double importeComision = redondear(importeBruto * (porcentajeComision / 100.0));
         Double importeNeto = redondear(importeBruto - importeComision);
         
-        // ⭐ Ahora solo necesita Compra y Usuario (el juego se obtiene desde compra)
+        //  Ahora solo necesita Compra y Usuario (el juego se obtiene desde compra)
         TransaccionProveedor transaccion = new TransaccionProveedor(
             compra,
             compra.getJuego().getProveedor(),  // Usuario (proveedor)

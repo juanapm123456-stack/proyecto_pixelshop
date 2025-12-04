@@ -33,7 +33,7 @@ public class CompraController extends BaseController {
         Usuario usuario = usuarioService.buscarPorEmail(email)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         
-        // ✅ VALIDACIÓN CRÍTICA: ADMIN NO PUEDE COMPRAR
+        //  VALIDACIÓN CRÍTICA: ADMIN NO PUEDE COMPRAR
         if (usuario.getRol() == Rol.ADMIN) {
             redirectAttributes.addFlashAttribute("error", "Los administradores no pueden comprar juegos");
             return "redirect:/juego/" + juegoId;
@@ -54,11 +54,11 @@ public class CompraController extends BaseController {
         
         // Enviar email de confirmación
         try {
-            System.out.println("📧 Intentando enviar email de confirmación a: " + usuario.getEmail());
+            System.out.println(" Intentando enviar email de confirmación a: " + usuario.getEmail());
             emailService.enviarConfirmacionCompra(compra);
-            System.out.println("✅ Email enviado correctamente");
+            System.out.println(" Email enviado correctamente");
         } catch (Exception e) {
-            System.err.println("❌ Error al enviar email de confirmación: " + e.getMessage());
+            System.err.println(" Error al enviar email de confirmación: " + e.getMessage());
             e.printStackTrace();
         }
         
