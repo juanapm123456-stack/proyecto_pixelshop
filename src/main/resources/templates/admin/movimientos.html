@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Movimientos Globales - Pixel Shop')}"></head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <nav th:replace="~{fragments/header :: navbar}"></nav>
+    
+    <div class="container mx-auto px-4 py-8 flex-grow">
+        <!-- Título -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                Movimientos Globales
+            </h1>
+            <p class="text-gray-600">Todas las transacciones de la plataforma</p>
+        </div>
+        
+        <!-- Tabla de transacciones -->
+        <div th:if="${!transacciones.empty}" class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
+                <h4 class="text-lg font-semibold">Historial de Transacciones</h4>
+                <span class="text-sm text-gray-300">
+                    <span th:text="${totalItems}">0</span> transacciones totales
+                </span>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">#ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            <tr th:each="transaccion : ${transacciones}" class="border-b border-gray-100 hover:bg-gray-50 transition">
+                                <td class="px-4 py-4 text-sm text-gray-900 font-medium" th:text="${transaccion.id}">8</td>
+                                <td class="px-4 py-4 text-sm">
+                                    <span th:if="${transaccion.tipoTransaccion.name() == 'COMISION_VENTA'}" 
+                                          class="text-blue-600 font-medium">
+                                        Comisión 15%
+                                    </span>
+                                    <span th:if="${transaccion.tipoTransaccion.name() == 'PAGO_PUBLICACION'}" 
+                                          class="text-purple-600 font-medium">
+                                        Publicación 25€
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm">
+                                    <!-- Si es comisión por venta, mostrar el cliente que compró -->
+                                    <span th:if="${transaccion.tipoTransaccion.name() == 'COMISION_VENTA'}" 
+                                          th:with="compra=${transaccion.compra}">
+                                        <!-- Si el usuario está activo -->
+                                        <span th:if="${compra != null && compra.usuario != null && compra.usuario.activo}">
+                                            <span th:text="${compra.usuario.nombre}" class="text-teal-600 font-medium">Jhon "Jhon"</span>
+                                            <span class="text-gray-500 text-xs ml-1">(Cliente)</span>
+                                        </span>
+                                        <!-- Si el usuario está eliminado -->
+                                        <span th:if="${compra != null && compra.usuario != null && !compra.usuario.activo}">
+                                            <span class="text-gray-400 font-medium">Usuario eliminado</span>
+                                            <span class="text-gray-400 text-xs ml-1">(Cliente)</span>
+                                        </span>
+                                        <!-- Si no hay usuario -->
+                                        <span th:if="${compra == null || compra.usuario == null}" class="text-gray-400 italic">
+                                            Usuario no disponible
+                                        </span>
+                                    </span>
+                                    <!-- Si es publicación, mostrar el proveedor que publicó -->
+                                    <span th:if="${transaccion.tipoTransaccion.name() == 'PAGO_PUBLICACION'}">
+                                        <!-- Si el proveedor está activo -->
+                                        <span th:if="${transaccion.usuario != null && transaccion.usuario.activo}">
+                                            <span th:text="${transaccion.usuario.nombre}" class="text-orange-600 font-medium">Proveedor</span>
+                                            <span class="text-gray-500 text-xs ml-1">(Proveedor)</span>
+                                        </span>
+                                        <!-- Si el proveedor está eliminado -->
+                                        <span th:if="${transaccion.usuario != null && !transaccion.usuario.activo}">
+                                            <span class="text-gray-400 font-medium">Proveedor eliminado</span>
+                                            <span class="text-gray-400 text-xs ml-1">(Proveedor)</span>
+                                        </span>
+                                        <!-- Si no hay proveedor -->
+                                        <span th:if="${transaccion.usuario == null}" class="text-gray-400 italic">
+                                            Proveedor no disponible
+                                        </span>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-700">
+                                    <!-- Si es comisión por venta, mostrar el nombre del juego -->
+                                    <span th:if="${transaccion.tipoTransaccion.name() == 'COMISION_VENTA'}" 
+                                          th:with="compra=${transaccion.compra}">
+                                        <span th:if="${compra != null && compra.juego != null}">
+                                            <span th:text="${compra.juego.titulo}">Moonlighter 2</span>
+                                            <span class="text-gray-500 text-xs ml-1">(Venta)</span>
+                                        </span>
+                                        <span th:unless="${compra != null && compra.juego != null}" class="text-gray-500 italic">
+                                            Comisión por venta
+                                        </span>
+                                    </span>
+                                    <!-- Si es publicación, mostrar descripción -->
+                                    <span th:if="${transaccion.tipoTransaccion.name() == 'PAGO_PUBLICACION'}">
+                                        <span th:text="${transaccion.descripcion}">Pago de publicación</span>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-700" th:text="${transaccion.fechaTransaccion != null ? #temporals.format(transaccion.fechaTransaccion, 'dd/MM/yyyy HH:mm') : 'N/A'}">28/11/2025 16:48</td>
+                                <td class="px-4 py-4 text-sm font-bold text-green-600" th:text="${transaccion.importe != null ? '+' + #numbers.formatDecimal(transaccion.importe, 1, 2) + '€' : 'N/A'}">+4,50€</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Controles de Paginación -->
+                <div th:if="${totalPages > 1}" class="flex justify-center items-center mt-6 space-x-1">
+                    <!-- Botón Primera Página -->
+                    <a th:href="@{/admin/movimientos(page=0)}" 
+                       th:classappend="${currentPage == 0} ? 'pointer-events-none opacity-50' : ''"
+                       class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        ‹‹
+                    </a>
+                    
+                    <!-- Botón Anterior -->
+                    <a th:href="@{/admin/movimientos(page=${currentPage - 1})}" 
+                       th:classappend="${currentPage == 0} ? 'pointer-events-none opacity-50' : ''"
+                       class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        ‹
+                    </a>
+                    
+                    <!-- Números de Página -->
+                    <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                        <!-- Mostrar solo 7 páginas alrededor de la actual -->
+                        <a th:if="${i >= currentPage - 3 && i <= currentPage + 3}"
+                           th:href="@{/admin/movimientos(page=${i})}"
+                           th:text="${i + 1}"
+                           th:classappend="${i == currentPage} ? 'bg-yellow-600 text-white font-bold' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                           class="px-4 py-2 rounded-lg transition">
+                            1
+                        </a>
+                    </th:block>
+                    
+                    <!-- Botón Siguiente -->
+                    <a th:href="@{/admin/movimientos(page=${currentPage + 1})}" 
+                       th:classappend="${currentPage == totalPages - 1} ? 'pointer-events-none opacity-50' : ''"
+                       class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        ›
+                    </a>
+                    
+                    <!-- Botón Última Página -->
+                    <a th:href="@{/admin/movimientos(page=${totalPages - 1})}" 
+                       th:classappend="${currentPage == totalPages - 1} ? 'pointer-events-none opacity-50' : ''"
+                       class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        ››
+                    </a>
+                </div>
+                
+                <!-- Info de Paginación -->
+                <div th:if="${totalPages > 1}" class="text-center mt-4 text-sm text-gray-600">
+                    Página <span class="font-semibold text-yellow-600" th:text="${currentPage + 1}">1</span> 
+                    de <span class="font-semibold" th:text="${totalPages}">1</span>
+                    <span class="mx-2">|</span>
+                    Mostrando 
+                    <span class="font-semibold" th:text="${transacciones.size()}">15</span> 
+                    de 
+                    <span class="font-semibold" th:text="${totalItems}">0</span> 
+                    transacciones
+                </div>
+            </div>
+        </div>
+        
+        <!-- Si no hay movimientos -->
+        <div th:if="${transacciones.empty}" class="bg-white rounded-lg shadow-md p-12 text-center">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-2">No hay transacciones registradas</h3>
+            <p class="text-gray-600">Los ingresos de la plataforma aparecerán aquí (comisiones y publicaciones)</p>
+        </div>
+    </div>
+    
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

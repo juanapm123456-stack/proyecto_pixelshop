@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Gestión de Usuarios - Pixel Shop')}"></head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <nav th:replace="~{fragments/header :: navbar}"></nav>
+    
+    <div class="container mx-auto px-4 py-8 flex-grow">
+        <!-- Título -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-users text-red-600 mr-3"></i>
+                Gestión de Usuarios
+            </h1>
+            <p class="text-gray-600">Administración completa de la plataforma</p>
+        </div>
+        
+        <!-- Mensajes -->
+        <div th:if="${success}" class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg">
+            <p class="text-green-800" th:text="${success}"></p>
+        </div>
+        
+        <!-- Estadísticas rápidas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-blue-500 text-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition">
+                <h3 class="text-4xl font-bold mb-2" th:text="${#lists.size(usuarios)}">0</h3>
+                <p class="text-blue-100">Total Usuarios</p>
+            </div>
+            <div class="bg-green-500 text-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition">
+                <h3 class="text-4xl font-bold mb-2" th:text="${#lists.size(usuarios.?[rol.name() == 'CLIENTE'])}">0</h3>
+                <p class="text-green-100">Clientes</p>
+            </div>
+            <div class="bg-cyan-500 text-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition">
+                <h3 class="text-4xl font-bold mb-2" th:text="${#lists.size(usuarios.?[rol.name() == 'PROVEEDOR'])}">0</h3>
+                <p class="text-cyan-100">Proveedores</p>
+            </div>
+        </div>
+        
+        <!-- Tabla de usuarios -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-gray-800 text-white px-6 py-4">
+                <h4 class="text-lg font-semibold"><i class="fas fa-list mr-2"></i>Lista de Usuarios</h4>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">#ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha Registro</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr th:each="usuario : ${usuarios}" class="hover:bg-gray-50 transition">
+                                <td class="px-4 py-4 text-sm text-gray-900" th:text="${usuario.id}">#1</td>
+                                <td class="px-4 py-4 text-sm">
+                                    <i class="fas fa-user-circle text-blue-500 mr-2"></i>
+                                    <strong class="text-gray-900" th:text="${usuario.nombre}">Nombre</strong>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-900" th:text="${usuario.email}">email@example.com</td>
+                                <td class="px-4 py-4 text-sm">
+                                    <span th:if="${usuario.rol.name() == 'CLIENTE'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-user mr-1"></i>Cliente
+                                    </span>
+                                    <span th:if="${usuario.rol.name() == 'PROVEEDOR'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                                        <i class="fas fa-briefcase mr-1"></i>Proveedor
+                                    </span>
+                                    <span th:if="${usuario.rol.name() == 'ADMIN'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-crown mr-1"></i>Admin
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-900" th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">01/01/2025</td>
+                                <td class="px-4 py-4 text-sm">
+                                    <span th:if="${usuario.activo}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Activo</span>
+                                    <span th:unless="${usuario.activo}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactivo</span>
+                                </td>
+                                <td class="px-4 py-4 text-sm">
+                                    <!-- No permitir eliminar ADMIN -->
+                                    <form th:if="${usuario.rol.name() != 'ADMIN'}" 
+                                          th:action="@{/admin/usuario/eliminar/{id}(id=${usuario.id})}" 
+                                          method="post" 
+                                          class="inline"
+                                          onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm transition">
+                                            <i class="fas fa-trash mr-1"></i>Eliminar
+                                        </button>
+                                    </form>
+                                    <span th:if="${usuario.rol.name() == 'ADMIN'}" class="text-gray-500 text-sm">
+                                        <i class="fas fa-shield-alt mr-1"></i>Protegido
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

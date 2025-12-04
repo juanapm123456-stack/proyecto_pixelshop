@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" class="h-full">
+<head th:replace="~{fragments/header :: head(${juego.titulo + ' - Pixel Shop'})}"></head>
+<body class="min-h-screen flex flex-col bg-gray-50">
+    <nav th:replace="~{fragments/header :: navbar}"></nav>
+    
+    <div class="flex-grow container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Columna izquierda: Galería de imágenes -->
+            <div>
+                <!-- CARRUSEL DE IMÁGENES CON TAILWIND -->
+                <div class="relative mb-6">
+                    <div id="carousel-container" class="relative overflow-hidden rounded-lg shadow-xl">
+                        <!-- Imagen 1 -->
+                        <div class="carousel-slide active">
+                            <img th:src="@{${juego.imagen2Url}}" 
+                                 alt="Captura 1" 
+                                 class="w-full h-96 object-cover"
+                                 onerror="this.src='https://via.placeholder.com/800x450?text=Sin+Imagen'">
+                        </div>
+                        <!-- Imagen 2 -->
+                        <div class="carousel-slide hidden">
+                            <img th:src="@{${juego.imagen3Url}}" 
+                                 alt="Captura 2" 
+                                 class="w-full h-96 object-cover"
+                                 onerror="this.src='https://via.placeholder.com/800x450?text=Sin+Imagen'">
+                        </div>
+                        <!-- Imagen 3 -->
+                        <div class="carousel-slide hidden">
+                            <img th:src="@{${juego.imagen4Url}}" 
+                                 alt="Captura 3" 
+                                 class="w-full h-96 object-cover"
+                                 onerror="this.src='https://via.placeholder.com/800x450?text=Sin+Imagen'">
+                        </div>
+                        
+                        <!-- Controles -->
+                        <button onclick="prevSlide()" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button onclick="nextSlide()" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        
+                        <!-- Indicadores -->
+                        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                            <button onclick="goToSlide(0)" class="carousel-indicator w-3 h-3 rounded-full bg-white bg-opacity-50 hover:bg-opacity-100 transition"></button>
+                            <button onclick="goToSlide(1)" class="carousel-indicator w-3 h-3 rounded-full bg-white bg-opacity-50 hover:bg-opacity-100 transition"></button>
+                            <button onclick="goToSlide(2)" class="carousel-indicator w-3 h-3 rounded-full bg-white bg-opacity-50 hover:bg-opacity-100 transition"></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Video de YouTube (si existe) -->
+                <div th:if="${juego.videoPromocionalUrl != null && !#strings.isEmpty(juego.videoPromocionalUrl)}">
+                    <h5 class="text-xl font-bold mb-3">
+                        <i class="fab fa-youtube text-red-600 mr-2"></i>Trailer / Gameplay
+                    </h5>
+                    <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg shadow-lg">
+                        <iframe th:src="${'https://www.youtube.com/embed/' + #strings.substringAfter(juego.videoPromocionalUrl, 'v=')}" 
+                                class="absolute top-0 left-0 w-full h-full"
+                                allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Columna derecha: Información del juego -->
+            <div>
+                <h1 class="text-5xl font-bold mb-4 text-gray-800" th:text="${juego.titulo}">Título del Juego</h1>
+                
+                <div class="mb-6">
+                    <span class="inline-block px-4 py-2 bg-blue-500 text-white rounded-lg mr-2 text-sm font-semibold" th:text="${juego.genero}">Género</span>
+                    <span class="inline-block px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-semibold">
+                        Por: <span th:text="${juego.proveedor.nombre}">Proveedor</span>
+                    </span>
+                </div>
+                
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed" th:text="${juego.descripcion}">Descripción del juego...</p>
+                
+                <div class="bg-white border-2 border-gray-200 rounded-lg p-6 flex justify-between items-center mb-6 shadow-md">
+                    <span class="text-xl font-semibold text-gray-700">Precio:</span>
+                    <span class="text-5xl font-bold text-blue-600" th:text="${juego.precio + '€'}">0.00€</span>
+                </div>
+                
+                <!-- Botones de acción -->
+                <!-- Solo CLIENTE y PROVEEDOR pueden comprar -->
+                <div sec:authorize="hasAnyRole('CLIENTE', 'PROVEEDOR')">
+                    <!-- Si NO lo ha comprado -->
+                    <div th:if="${!yaComprado}">
+                        <form th:action="@{/compra/{id}(id=${juego.id})}" method="post">
+                            <button type="submit" class="w-full bg-blue-600 text-white py-4 px-6 rounded-lg text-xl font-bold hover:bg-blue-700 transition mb-3 shadow-lg">
+                                <i class="fas fa-shopping-cart mr-2"></i>Comprar Ahora
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Si YA lo compró -->
+                    <div th:if="${yaComprado}">
+                        <button class="w-full bg-green-500 text-white py-4 px-6 rounded-lg text-xl font-bold mb-3 cursor-not-allowed" disabled>
+                            <i class="fas fa-check-circle mr-2"></i>Ya tienes este juego
+                        </button>
+                        <a th:href="@{/mi-biblioteca}" class="block w-full text-center border-2 border-blue-600 text-blue-600 py-3 px-6 rounded-lg text-lg font-semibold hover:bg-blue-50 transition">
+                            <i class="fas fa-book mr-2"></i>Ir a Mi Biblioteca
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Mensaje para ADMIN -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <div class="bg-yellow-50 border-2 border-yellow-400 text-yellow-800 p-4 rounded-lg text-center mb-3">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        <strong>Los administradores no pueden comprar juegos</strong>
+                    </div>
+                </div>
+                
+                <a th:href="@{/}" class="block w-full text-center border-2 border-gray-400 text-gray-700 py-3 px-6 rounded-lg text-lg font-semibold hover:bg-gray-100 transition mt-2">
+                    <i class="fas fa-arrow-left mr-2"></i>Volver al catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sistema de carrusel para las imágenes del juego (imagen2, imagen3, imagen4)
+        // Permite navegación manual con botones, indicadores y auto-play cada 5 segundos
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.carousel-indicator');
+        
+        function showSlide(n) {
+            slides.forEach((slide, index) => {
+                slide.classList.add('hidden');
+                slide.classList.remove('active');
+                indicators[index].classList.remove('bg-opacity-100');
+                indicators[index].classList.add('bg-opacity-50');
+            });
+            
+            if (n >= slides.length) currentSlide = 0;
+            if (n < 0) currentSlide = slides.length - 1;
+            
+            slides[currentSlide].classList.remove('hidden');
+            slides[currentSlide].classList.add('active');
+            indicators[currentSlide].classList.add('bg-opacity-100');
+            indicators[currentSlide].classList.remove('bg-opacity-50');
+        }
+        
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+        
+        function prevSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+        
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+        
+        // Auto-play cada 5 segundos
+        setInterval(() => {
+            nextSlide();
+        }, 5000);
+    </script>
+    
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Pagar Publicación - Pixel Shop')}\"></head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <nav th:replace="~{fragments/header :: navbar}"></nav>
+    
+    <div class="container mx-auto px-4 py-8 flex-grow max-w-2xl">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-t-xl px-8 py-10 text-center text-white shadow-lg mb-0">
+            <i class="fas fa-credit-card text-5xl mb-4"></i>
+            <h1 class="text-3xl font-bold mb-2">Pago de Publicación</h1>
+            <p class="text-lg opacity-90">Completa el pago para publicar tu juego</p>
+        </div>
+        
+        <!-- Resumen del juego -->
+        <div class="bg-white shadow-lg p-8 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-gamepad text-indigo-600 mr-2"></i>
+                Resumen
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6 text-gray-700">
+                <div>
+                    <p class="font-semibold">Juego:</p>
+                    <p th:text="${juego.titulo}">Título del juego</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Precio de venta:</p>
+                    <p th:text="${juego.precio + '€'}">0.00€</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Género:</p>
+                    <p th:text="${juego.genero}">Acción</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Imágenes:</p>
+                    <p>4 imágenes subidas ✓</p>
+                </div>
+            </div>
+            
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center text-2xl font-bold">
+                    <span class="text-gray-800">Costo de publicación:</span>
+                    <span class="text-indigo-600">25.00€</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botones de pago -->
+        <div class="bg-white shadow-lg rounded-b-xl p-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-wallet text-indigo-600 mr-2"></i>
+                Métodos de Pago
+            </h3>
+            
+            <!-- PayPal Button -->
+            <div id="paypal-button-container" class="mb-4"></div>
+            
+            <!-- Botón cancelar -->
+            <a th:href="@{/proveedor/cancelar-publicacion}" 
+               class="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 text-center px-6 py-3 rounded-lg transition font-semibold">
+                <i class="fas fa-times mr-2"></i>Cancelar Publicación
+            </a>
+        </div>
+        
+        <!-- Info adicional -->
+        <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-500 text-xl mr-3 mt-1"></i>
+                <div class="text-blue-800">
+                    <p class="font-semibold mb-1">Información importante:</p>
+                    <ul class="text-sm space-y-1 ml-4 list-disc">
+                        <li>El pago de 25€ es único por cada juego publicado</li>
+                        <li>Una vez confirmado el pago, tu juego será visible en el catálogo</li>
+                        <li>Las imágenes ya han sido subidas y guardadas</li>
+                        <li>Si cancelas, podrás volver a intentar la publicación más tarde</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    
+    <!-- PayPal SDK -->
+    <script th:src="'https://www.paypal.com/sdk/js?client-id=' + ${paypalClientId} + '&currency=EUR'"></script>
+    
+    <script>
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        description: 'Publicación de juego: ' + document.querySelector('[th\\:text="${juego.titulo}"]').textContent,
+                        amount: {
+                            currency_code: 'EUR',
+                            value: '25.00'
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Redirigir a confirmación
+                    window.location.href = '/proveedor/confirmar-publicacion?token=' + data.orderID;
+                });
+            },
+            onError: function(err) {
+                alert('Error al procesar el pago: ' + err);
+            },
+            onCancel: function(data) {
+                alert('Has cancelado el pago');
+            }
+        }).render('#paypal-button-container');
+    </script>
+</body>
+</html>

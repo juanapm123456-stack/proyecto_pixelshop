@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-4">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-8 my-8">
+        <!-- Success Icon -->
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-green-600 mb-2">¡Compra Confirmada!</h1>
+            <p class="text-gray-600">Gracias por tu compra, <span class="font-semibold" th:text="${nombreUsuario}">Usuario</span></p>
+        </div>
+        
+        <!-- Order Details -->
+        <div class="bg-green-50 border-l-4 border-green-600 p-6 my-6">
+            <h3 class="text-lg font-semibold text-green-900 mb-4">Detalles de tu compra</h3>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between items-center pb-3 border-b border-green-200">
+                    <span class="text-gray-600 font-medium">Juego:</span>
+                    <span class="text-gray-900 font-semibold" th:text="${tituloJuego}">Nombre del juego</span>
+                </div>
+                
+                <div class="flex justify-between items-center pb-3 border-b border-green-200">
+                    <span class="text-gray-600 font-medium">Fecha:</span>
+                    <span class="text-gray-900" th:text="${fecha}">01/01/2025</span>
+                </div>
+                
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-gray-600 font-medium">Total pagado:</span>
+                    <span class="text-2xl font-bold text-green-600"><span th:text="${precio}">0.00</span>€</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Message -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 my-6">
+            <p class="text-blue-900 text-center">
+                ✨ El juego ya está disponible en tu biblioteca personal
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
+            <p>© 2025 PixelShop. Todos los derechos reservados.</p>
+            <p class="mt-1">Este es un correo automático, por favor no responder.</p>
+        </div>
+    </div>
+</body>
+</html>

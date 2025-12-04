@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="h-full">
+<head th:replace="~{fragments/header :: head('Mi Biblioteca - Pixel Shop')}"></head>
+<body class="min-h-screen flex flex-col bg-gray-50">
+    <nav th:replace="~{fragments/header :: navbar}"></nav>
+    
+    <div class="flex-grow container mx-auto px-4 py-8">
+        <div class="text-center mb-10">
+            <h1 class="text-5xl font-bold text-gray-800">
+                <i class="fas fa-book text-blue-600 mr-3"></i>
+                Mi Biblioteca
+            </h1>
+            <p class="text-xl text-gray-600 mt-3">Tus juegos comprados</p>
+        </div>
+        
+        <!-- Grid de juegos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div th:each="item : ${biblioteca}">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 h-full flex flex-col">
+                    <div class="relative h-64 overflow-hidden">
+                        <img th:src="${item.juego.imagenPortadaUrl != null ? item.juego.imagenPortadaUrl : 'https://via.placeholder.com/300x400?text=Pixel+Shop'}" 
+                             th:alt="${item.juego.titulo}"
+                             class="w-full h-full object-cover">
+                    </div>
+                    
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h5 class="text-lg font-bold text-gray-800 mb-2" th:text="${item.juego.titulo}">Título</h5>
+                        <p class="text-sm text-gray-600 mb-4">
+                            Adquirido: <span th:text="${#temporals.format(item.fechaCompra, 'dd/MM/yyyy')}"></span>
+                        </p>
+                        
+                        <div class="mt-auto space-y-2">
+                            <a th:href="@{/juego/{id}(id=${item.juego.id})}" class="block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold text-center">
+                                <i class="fas fa-info-circle mr-1"></i> Ver Detalles
+                            </a>
+                            
+                            <!-- Botón de descarga (solo si el juego tiene archivo) -->
+                            <button th:if="${item.juego.archivoDescargableUrl != null}" 
+                                    th:data-juego-id="${item.juego.id}"
+                                    th:data-titulo="${item.juego.titulo}"
+                                    th:data-tamanio="${item.juego.archivoTamanioBytes}"
+                                    th:data-nombre="${item.juego.archivoNombre}"
+                                    onclick="mostrarModalDescarga(this.dataset.juegoId, this.dataset.titulo, this.dataset.tamanio, this.dataset.nombre)"
+                                    class="block w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold text-center">
+                                <i class="fas fa-download mr-1"></i> Descargar
+                            </button>
+                            
+                            <div th:unless="${item.juego.archivoDescargableUrl != null}" 
+                                 class="block w-full px-4 py-2 bg-gray-300 text-gray-600 rounded-lg text-sm font-semibold text-center cursor-not-allowed">
+                                <i class="fas fa-ban mr-1"></i> Sin archivo
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Si la biblioteca está vacía -->
+        <div th:if="${biblioteca.empty}" class="text-center py-16">
+            <i class="fas fa-folder-open text-6xl text-gray-400 mb-6"></i>
+            <h3 class="text-3xl font-bold text-gray-800 mb-2">Tu biblioteca está vacía</h3>
+            <p class="text-gray-600 mb-6">¡Empieza a comprar juegos!</p>
+            <a th:href="@{/}" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg font-semibold">
+                <i class="fas fa-shopping-cart mr-2"></i>Ir al Catálogo
+            </a>
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmación de Descarga -->
+    <div id="modalDescarga" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="cerrarModalDescarga()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <i class="fas fa-download text-3xl text-green-600"></i>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">¿Descargar juego?</h3>
+                <p class="text-gray-600 mb-4" id="modalTitulo">Título del juego</p>
+                
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-center text-blue-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span class="font-semibold">Tamaño de descarga:</span>
+                        <span class="ml-2 text-xl font-bold" id="modalTamanio">0 MB</span>
+                    </div>
+                    <p class="text-xs text-blue-600 mt-2" id="modalNombreArchivo">archivo.zip</p>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="cerrarModalDescarga()" 
+                            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        <i class="fas fa-times mr-1"></i> Cancelar
+                    </button>
+                    <a id="btnConfirmarDescarga" href="#" 
+                       class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold text-center">
+                        <i class="fas fa-check mr-1"></i> Descargar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function mostrarModalDescarga(juegoId, titulo, tamanio, nombreArchivo) {
+            document.getElementById('modalTitulo').textContent = titulo;
+            document.getElementById('modalTamanio').textContent = (tamanio || 0) + ' MB';
+            document.getElementById('modalNombreArchivo').textContent = nombreArchivo || 'archivo.zip';
+            document.getElementById('btnConfirmarDescarga').href = '/descargar-juego/' + juegoId;
+            document.getElementById('modalDescarga').classList.remove('hidden');
+        }
+        
+        function cerrarModalDescarga() {
+            document.getElementById('modalDescarga').classList.add('hidden');
+        }
+        
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarModalDescarga();
+            }
+        });
+    </script>
+    
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

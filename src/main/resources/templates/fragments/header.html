@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Pixel Shop</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">    
+    <!-- Prism CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    
+    <!-- CSS específico de la página -->
+    <link th:href="@{${pageCSS}}" rel="stylesheet" th:if="${pageCSS}">
+</head>
+
+<body>
+    <nav th:fragment="navbar" class="bg-gradient-to-r from-gray-800 to-gray-900 shadow-2xl">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between flex-wrap">
+                <!-- Logo -->
+                <a th:href="@{/}" class="flex items-center text-white text-2xl font-bold hover:text-gray-300 transition">
+                    <img th:src="@{/images/logo.png}" alt="Pixel Shop" class="w-10 h-10 object-contain mr-3">
+                    Pixel Shop
+                </a>
+                
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="lg:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                
+                <!-- Navigation -->
+                <ul id="navbar-menu" class="hidden lg:flex lg:items-center lg:space-x-6 w-full lg:w-auto mt-4 lg:mt-0">
+                    <!-- Catálogo -->
+                    <li>
+                        <a th:href="@{/}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-home mr-1"></i>Catálogo
+                        </a>
+                    </li>
+                    
+                    <!-- Búsqueda -->
+                    <li class="w-full lg:w-auto mt-2 lg:mt-0">
+                        <form th:action="@{/buscar}" method="get" class="flex">
+                            <input type="search" name="q" placeholder="Buscar juegos..." class="px-4 py-2 rounded-lg w-full lg:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </form>
+                    </li>
+                    
+                    <!-- Si NO está autenticado -->
+                    <li sec:authorize="!isAuthenticated()" class="mt-2 lg:mt-0">
+                        <a th:href="@{/login}" class="block lg:inline-block px-4 py-2 border-2 border-white text-white rounded-lg hover:bg-white hover:text-gray-800 transition">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Iniciar Sesión
+                        </a>
+                    </li>
+                    <li sec:authorize="!isAuthenticated()" class="mt-2 lg:mt-0">
+                        <a th:href="@{/register}" class="block lg:inline-block px-4 py-2 bg-white text-gray-800 rounded-lg hover:bg-gray-200 transition font-semibold">
+                            <i class="fas fa-user-plus mr-1"></i>Registrarse
+                        </a>
+                    </li>
+                    
+                    <!-- Si está autenticado -->
+                    <!-- CLIENTE -->
+                    <li sec:authorize="hasRole('CLIENTE')">
+                        <a th:href="@{/mi-biblioteca}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-book mr-1"></i>Mi Biblioteca
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('CLIENTE')">
+                        <a th:href="@{/compra/mis-compras}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-shopping-bag mr-1"></i>Mis Compras
+                        </a>
+                    </li>
+                    
+                    <!-- PROVEEDOR -->
+                    <li sec:authorize="hasRole('PROVEEDOR')">
+                        <a th:href="@{/mi-biblioteca}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-book mr-1"></i>Mi Biblioteca
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('PROVEEDOR')">
+                        <a th:href="@{/proveedor/publicar}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-upload mr-1"></i>Publicar Juego
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('PROVEEDOR')">
+                        <a th:href="@{/proveedor/mis-juegos}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-gamepad mr-1"></i>Mis Juegos
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('PROVEEDOR')">
+                        <a th:href="@{/proveedor/ventas}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-chart-line mr-1"></i>Ventas
+                        </a>
+                    </li>
+                    
+                    <!-- ADMIN -->
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/usuarios}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-users mr-1"></i>Usuarios
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/ganancias}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-dollar-sign mr-1"></i>Ganancias
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/movimientos}" class="block lg:inline-block text-white hover:text-gray-300 transition py-2 lg:py-0">
+                            <i class="fas fa-exchange-alt mr-1"></i>Movimientos
+                        </a>
+                    </li>
+                    
+                    <!-- Perfil y Cerrar Sesión -->
+                    <li sec:authorize="isAuthenticated()" class="relative mt-2 lg:mt-0">
+                        <div class="group">
+                            <button class="flex items-center text-white hover:text-gray-300 transition py-2 lg:py-0 focus:outline-none">
+                                <i class="fas fa-user-circle mr-1"></i>
+                                <span sec:authentication="name"></span>
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 transition-all duration-200 before:content-[''] before:absolute before:-top-2 before:right-0 before:w-full before:h-2">
+                                <a th:href="@{/perfil}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                    <i class="fas fa-user mr-2"></i>Mi Perfil
+                                </a>
+                                <hr class="my-2">
+                                <form th:action="@{/logout}" method="post">
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <script>
+        // Mostrar/ocultar menú de navegación en dispositivos móviles al hacer clic en el botón de hamburguesa
+        document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+            const menu = document.getElementById('navbar-menu');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

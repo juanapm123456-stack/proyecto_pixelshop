@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-4">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-8 my-8">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
+                <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-emerald-600 mb-2">¡Nueva Venta!</h1>
+            <p class="text-gray-600">Felicitaciones, <span class="font-semibold text-emerald-600" th:text="${nombreProveedor}">Proveedor</span></p>
+        </div>
+        
+        <!-- Content -->
+        <div class="text-gray-700 mb-6">
+            <p class="text-center text-lg">Tu juego ha sido vendido 🎉</p>
+        </div>
+        
+        <!-- Sale Details -->
+        <div class="bg-emerald-50 border-l-4 border-emerald-600 p-6 my-6">
+            <h3 class="text-lg font-semibold text-emerald-900 mb-4">Detalles de la venta</h3>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between items-center pb-3 border-b border-emerald-200">
+                    <span class="text-gray-600 font-medium">Juego:</span>
+                    <span class="text-gray-900 font-semibold" th:text="${tituloJuego}">Nombre del juego</span>
+                </div>
+                
+                <div class="flex justify-between items-center pb-3 border-b border-emerald-200">
+                    <span class="text-gray-600 font-medium">Precio de venta:</span>
+                    <span class="text-gray-900" th:text="${precioVenta}">0.00</span>€
+                </div>
+                
+                <div class="flex justify-between items-center pb-3 border-b border-emerald-200">
+                    <span class="text-gray-600 font-medium">Tu ganancia (85%):</span>
+                    <span class="text-2xl font-bold text-emerald-600"><span th:text="${gananciaProveedor}">0.00</span>€</span>
+                </div>
+                
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-gray-600 font-medium">Fecha:</span>
+                    <span class="text-gray-900" th:text="${fecha}">01/01/2025</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Message -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 my-6">
+            <p class="text-blue-900 text-center text-sm">
+                💡 Puedes ver más detalles en tu panel de proveedor
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
+            <p>© 2025 PixelShop. Todos los derechos reservados.</p>
+            <p class="mt-1">Este es un correo automático, por favor no responder.</p>
+        </div>
+    </div>
+</body>
+</html>

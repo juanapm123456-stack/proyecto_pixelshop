@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Ganancias - Pixel Shop')}"></head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <nav th:replace="~{fragments/header :: navbar}"></nav>
+    
+    <div class="container mx-auto px-4 py-8 flex-grow">
+        <!-- Título -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-dollar-sign text-green-600 mr-3"></i>
+                Ganancias de la Plataforma
+            </h1>
+            <p class="text-gray-600">Resumen financiero completo</p>
+        </div>
+        
+        <!-- Cards de ganancias -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Ganancia por Ventas (15%) -->
+            <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                </div>
+                <h6 class="text-gray-600 text-sm mb-2">Comisión por Ventas (15%)</h6>
+                <h2 class="text-4xl font-bold text-blue-600 mb-1" th:text="${#numbers.formatDecimal(gananciaVentas, 1, 2) + '€'}">0.00€</h2>
+                <small class="text-gray-500">Total ventas: <span th:text="${#numbers.formatDecimal(totalVentas, 1, 2) + '€'}">0.00€</span></small>
+            </div>
+            
+            <!-- Ganancia por Publicaciones (25€ c/u) -->
+            <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-upload text-white text-2xl"></i>
+                </div>
+                <h6 class="text-gray-600 text-sm mb-2">Publicaciones (25€ c/u)</h6>
+                <h2 class="text-4xl font-bold text-cyan-600 mb-1" th:text="${#numbers.formatDecimal(gananciaPublicaciones, 1, 2) + '€'}">0.00€</h2>
+                <small class="text-gray-500">Total publicaciones: <span th:text="${totalPublicaciones}">0</span></small>
+            </div>
+            
+            <!-- Ganancia Total -->
+            <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-line text-white text-2xl"></i>
+                </div>
+                <h6 class="text-gray-600 text-sm mb-2">Ganancia Total</h6>
+                <h2 class="text-4xl font-bold text-green-600 mb-1" th:text="${#numbers.formatDecimal(gananciaTotal, 1, 2) + '€'}">0.00€</h2>
+                <small class="text-gray-500">Ingresos de Pixel Shop</small>
+            </div>
+        </div>
+        
+        <!-- Mensaje si no hay datos -->
+        <div th:if="${gananciaTotal == 0}" class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg text-center">
+            <i class="fas fa-info-circle text-blue-500 text-4xl mb-3"></i>
+            <h5 class="text-xl font-semibold text-gray-800 mb-2">No hay transacciones aún</h5>
+            <p class="text-gray-600">Las ganancias aparecerán cuando se realicen ventas y publicaciones</p>
+        </div>
+    </div>
+    
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,269 @@
+/* ==================== RESET BÁSICO ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==================== FONDO COMPLETO ==================== */
+body.login-body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    /* Fondo con imagen de gaming */
+    background-image: url('/images/background-auth.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    
+    min-height: 100vh;
+    min-width: 1280px; /* Ancho mínimo más grande - ventana no se cierra casi nada */
+    overflow-x: auto;  /* Scroll horizontal si la ventana es muy pequeña */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Alinea a la DERECHA */
+    padding: 2rem;
+    position: relative;
+}
+
+/* ==================== CONTENIDO IZQUIERDO (Opcional) ==================== */
+.contenido-izquierdo {
+    position: absolute;
+    left: 4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    max-width: 600px;
+}
+
+.contenido-izquierdo h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.contenido-izquierdo p {
+    font-size: 1.3rem;
+    opacity: 0.9;
+}
+
+/* ==================== CUADRO FLOTANTE A LA DERECHA ==================== */
+.login-container {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 3rem;
+    width: 100%;
+    max-width: 420px;
+    margin-right: 4rem; /* Separación del borde derecho */
+    animation: deslizarDerecha 0.6s ease-out;
+}
+
+@keyframes deslizarDerecha {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ==================== HEADER DEL FORMULARIO ==================== */
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header .logo {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1rem;
+    object-fit: contain;
+}
+
+.login-header h2 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-header p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* ==================== CAMPOS DEL FORMULARIO ==================== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #aaa;
+}
+
+/* Input de archivo personalizado */
+.form-group input[type="file"] {
+    padding: 0.6rem;
+    cursor: pointer;
+}
+
+/* ==================== BOTÓN ==================== */
+.btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+/* ==================== BOTÓN DE GOOGLE ==================== */
+.btn-google {
+    width: 100%;
+    padding: 1rem;
+    background: white;
+    color: #444;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-google:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== DIVIDER ==================== */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.divider span {
+    position: relative;
+    background: white;
+    padding: 0 1rem;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+/* ==================== FOOTER LINKS ==================== */
+.footer-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.footer-links p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.footer-links a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* ==================== ALERTAS ==================== */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+.alert-danger {
+    background: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+}
+
+.alert-success {
+    background: #efe;
+    border: 1px solid #cfc;
+    color: #3c3;
+}
+
+/* ==================== RESPONSIVE ==================== */
+/* Media queries deshabilitadas para mantener diseño fijo como Steam */
