@@ -24,7 +24,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     // Verifica si existe un email ACTIVO en la base de datos
     boolean existsByEmailAndActivo(String email, Boolean activo);
 
-    // Busca todos los usuarios por rol
+    // Busca todos los usuarios ACTIVOS por rol
+    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.activo = true")
     List<Usuario> findByRol(Rol rol);
     
     // Busca usuarios por estado activo/inactivo
@@ -37,13 +38,19 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query("SELECT u FROM Usuario u WHERE u.rol = 'PROVEEDOR' AND u.activo = true")
     List<Usuario> findAllProveedores();
 
-    // Busca todos los clientes (usuarios con rol CLIENTE)
-    @Query("SELECT u FROM Usuario u WHERE u.rol = 'CLIENTE'")
+    // Busca todos los clientes ACTIVOS (usuarios con rol CLIENTE)
+    @Query("SELECT u FROM Usuario u WHERE u.rol = 'CLIENTE' AND u.activo = true")
     List<Usuario> findAllClientes();
+    
+    // Busca todos los usuarios ACTIVOS
+    @Query("SELECT u FROM Usuario u WHERE u.activo = true")
+    List<Usuario> findAllActive();
 
-    // Cuenta el total de usuarios registrados
-    long count();
+    // Cuenta el total de usuarios ACTIVOS
+    @Query("SELECT COUNT(u) FROM Usuario u WHERE u.activo = true")
+    long countActive();
 
-    // Cuenta los usuarios registrados por rol
-    long countByRol(Rol rol);
+    // Cuenta los usuarios ACTIVOS por rol
+    @Query("SELECT COUNT(u) FROM Usuario u WHERE u.rol = :rol AND u.activo = true")
+    long countByRolActive(Rol rol);
 }

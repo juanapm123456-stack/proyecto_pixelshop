@@ -160,7 +160,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
     @Override
     @Transactional(readOnly = true)
     public long contarPorRol(Rol rol) {
-        return usuarioRepository.countByRol(rol);
+        return usuarioRepository.countByRolActive(rol);
     }
     
     // Activa o desactiva un usuario (banearlo o desbanearlo)

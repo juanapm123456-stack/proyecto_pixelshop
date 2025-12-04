@@ -24,4 +24,7 @@ public interface IServicioPayPal {
     
     // Extrae el ID del juego de una orden
     Integer extraerJuegoId(Order order);
+    
+    // Envía un pago (payout) a un proveedor por PayPal
+    String enviarPagoProveedor(String emailPaypal, Double monto, String descripcion) throws IOException;
 }

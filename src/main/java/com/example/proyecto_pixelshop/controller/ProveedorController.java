@@ -32,6 +32,7 @@ public class ProveedorController extends BaseController {
     @Autowired private IAzureBlobStorageService azureStorageService;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private IServicioJuego juegoService;
+    @Autowired private com.example.proyecto_pixelshop.service.interfaz.IServicioPayPal paypalService;
     
     @GetMapping("/publicar")
     public String mostrarFormularioPublicar(Model model) {
@@ -206,14 +207,20 @@ public class ProveedorController extends BaseController {
         List<TransaccionProveedor> movimientos = transaccionProveedorRepository
             .findByUsuarioOrderByFechaVentaDesc(proveedor);
         
-        // Calcular ingresos pendientes (85% de las ventas no cobradas)
-        double ingresosPendientes = movimientos.stream()
+        // Obtener transacciones pendientes
+        List<TransaccionProveedor> transaccionesPendientes = movimientos.stream()
             .filter(t -> t.getEstadoPago() == EstadoPago.PENDIENTE)
+            .toList();
+        
+        // Calcular ingresos pendientes (85% de las ventas no cobradas)
+        double ingresosPendientes = transaccionesPendientes.stream()
             .mapToDouble(TransaccionProveedor::getImporteNeto)
             .sum();
         
         model.addAttribute("usuario", proveedor);
         model.addAttribute("movimientos", movimientos);
+        model.addAttribute("transaccionesPendientes", transaccionesPendientes);
+        model.addAttribute("totalPendiente", ingresosPendientes);
         model.addAttribute("ingresosPendientes", String.format("%.2f", ingresosPendientes));
         
         return "proveedor/ventas";
@@ -493,6 +500,119 @@ public class ProveedorController extends BaseController {
         } catch (IOException e) {
             return "Error al procesar " + imageName + ". Verifica que sea un archivo de imagen válido (JPG, PNG, WEBP).";
         }
+    }
+    
+    // Procesar cobro de ganancias pendientes (individual o todas)
+    @PostMapping("/cobrar")
+    public String procesarCobro(@RequestParam String metodoCobro,
+                                @RequestParam(required = false) Integer transaccionId,
+                                @RequestParam(required = false) String emailPaypal,
+                                @RequestParam(required = false) String numeroTarjeta,
+                                @RequestParam(required = false) String titularTarjeta,
+                                Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            String email = obtenerEmailDelUsuario(authentication);
+            Usuario proveedor = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            
+            List<TransaccionProveedor> transaccionesPendientes;
+            
+            // Si se proporciona transaccionId, cobrar solo esa transacción
+            if (transaccionId != null) {
+                TransaccionProveedor transaccion = transaccionProveedorRepository.findById(transaccionId)
+                    .orElseThrow(() -> new RuntimeException("Transacción no encontrada"));
+                
+                // Validar que la transacción pertenece al proveedor
+                if (!transaccion.getCompra().getJuego().getProveedor().getId().equals(proveedor.getId())) {
+                    redirectAttributes.addFlashAttribute("error", "No tienes permiso para cobrar esta transacción");
+                    return "redirect:/proveedor/ventas";
+                }
+                
+                // Validar que está pendiente
+                if (transaccion.getEstadoPago() != EstadoPago.PENDIENTE) {
+                    redirectAttributes.addFlashAttribute("error", "Esta transacción ya fue cobrada");
+                    return "redirect:/proveedor/ventas";
+                }
+                
+                transaccionesPendientes = List.of(transaccion);
+            } else {
+                // Cobrar todas las transacciones pendientes
+                transaccionesPendientes = 
+                    transaccionProveedorRepository.findByUsuarioAndEstadoPago(proveedor, EstadoPago.PENDIENTE);
+                
+                if (transaccionesPendientes.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "No tienes ganancias pendientes para cobrar");
+                    return "redirect:/proveedor/ventas";
+                }
+            }
+            
+            Double totalPendiente = transaccionesPendientes.stream()
+                .mapToDouble(TransaccionProveedor::getImporteNeto)
+                .sum();
+            
+            if ("paypal".equals(metodoCobro)) {
+                // Validar email de PayPal
+                if (emailPaypal == null || emailPaypal.trim().isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "Debes proporcionar un email de PayPal válido");
+                    return "redirect:/proveedor/ventas";
+                }
+                
+                // Enviar payout mediante PayPal
+                String descripcion = transaccionesPendientes.size() == 1
+                    ? "Pago de ganancia de PixelShop - 1 transacción"
+                    : String.format("Pago de ganancias de PixelShop - %d transacciones", transaccionesPendientes.size());
+                
+                String payoutId = paypalService.enviarPagoProveedor(emailPaypal, totalPendiente, descripcion);
+                
+                // Marcar transacciones como pagadas
+                for (TransaccionProveedor transaccion : transaccionesPendientes) {
+                    transaccion.setEstadoPago(EstadoPago.PAGADO);
+                    transaccion.setFechaPago(java.time.LocalDateTime.now());
+                    transaccionProveedorRepository.save(transaccion);
+                }
+                
+                // Actualizar email de PayPal del proveedor
+                proveedor.setEmailPaypal(emailPaypal);
+                usuarioRepository.save(proveedor);
+                
+                String mensajeExito = transaccionesPendientes.size() == 1
+                    ? String.format("✅ Pago de %.2f€ enviado exitosamente a %s mediante PayPal", totalPendiente, emailPaypal)
+                    : String.format("✅ Pago de %.2f€ (%d transacciones) enviado exitosamente a %s mediante PayPal", 
+                        totalPendiente, transaccionesPendientes.size(), emailPaypal);
+                
+                redirectAttributes.addFlashAttribute("success", mensajeExito);
+                
+            } else if ("tarjeta".equals(metodoCobro)) {
+                // Validar datos bancarios
+                if (numeroTarjeta == null || numeroTarjeta.trim().isEmpty() ||
+                    titularTarjeta == null || titularTarjeta.trim().isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "Debes completar todos los campos de la cuenta bancaria");
+                    return "redirect:/proveedor/ventas";
+                }
+                
+                // Marcar transacciones como pagadas (transferencia manual)
+                for (TransaccionProveedor transaccion : transaccionesPendientes) {
+                    transaccion.setEstadoPago(EstadoPago.PAGADO);
+                    transaccion.setFechaPago(java.time.LocalDateTime.now());
+                    transaccionProveedorRepository.save(transaccion);
+                }
+                
+                redirectAttributes.addFlashAttribute("success", 
+                    String.format("✅ Solicitud de transferencia de %.2f€ registrada. Se procesará en 2-3 días hábiles a la cuenta: %s", 
+                        totalPendiente, numeroTarjeta));
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Método de cobro no válido");
+                return "redirect:/proveedor/ventas";
+            }
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", 
+                "❌ Error al procesar el pago: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return "redirect:/proveedor/ventas";
     }
     
 }
