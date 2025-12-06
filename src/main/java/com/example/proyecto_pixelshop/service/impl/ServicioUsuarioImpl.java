@@ -4,6 +4,8 @@ import com.example.proyecto_pixelshop.model.Usuario;
 import com.example.proyecto_pixelshop.model.enums.Rol;
 import com.example.proyecto_pixelshop.repository.UsuarioRepository;
 import com.example.proyecto_pixelshop.service.interfaz.IServicioUsuario;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
     
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @PersistenceContext private EntityManager entityManager;
     
     // Busca un usuario por su ID en la base de datos
     @Override
@@ -83,51 +86,96 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
     // Elimina un usuario de forma FÍSICA (borra completamente de la base de datos)
     // PRESERVA: Solo las transacciones de plataforma (para historial de ganancias)
     // ELIMINA: Usuario, compras, transacciones de proveedor
-    // DESVINCULA: Juegos (quedan huérfanos pero los clientes conservan sus compras)
+    // DESACTIVA Y DESVINCULA: Juegos (los clientes conservan sus compras)
     @Override
+    @Transactional
     public void eliminar(Integer id) {
         Usuario usuario = usuarioRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
         
         String emailOriginal = usuario.getEmail();
-        System.out.println(" Eliminando usuario ID " + id + " (" + emailOriginal + ")");
+        System.out.println("🗑️ Eliminando usuario ID " + id + " (" + emailOriginal + ")");
         
-        // 1. DESVINCULAR transacciones de plataforma (se preservan para historial)
-        if (!usuario.getTransaccionesPlataforma().isEmpty()) {
-            System.out.println("  Preservando " + usuario.getTransaccionesPlataforma().size() + " transacciones de plataforma");
-            for (var transaccion : usuario.getTransaccionesPlataforma()) {
-                transaccion.setUsuario(null); // Desvincular usuario
-            }
+        // Contar elementos antes de eliminar
+        int transaccionesPlataforma = usuario.getTransaccionesPlataforma().size();
+        int juegosPublicados = usuario.getJuegosPublicados().size();
+        int compras = usuario.getCompras().size();
+        int transaccionesProveedor = usuario.getTransacciones().size();
+        
+        // PASO 1: ELIMINAR transacciones de proveedor del usuario (ganancias del proveedor)
+        if (transaccionesProveedor > 0) {
+            System.out.println("   💰 Eliminando " + transaccionesProveedor + " transacciones de proveedor");
+            entityManager.createQuery("DELETE FROM TransaccionProveedor t WHERE t.usuario.id = :usuarioId")
+                .setParameter("usuarioId", id)
+                .executeUpdate();
         }
         
-        // 2. DESVINCULAR juegos publicados (quedan huérfanos pero activos)
-        // Los clientes que compraron estos juegos los conservan
-        if (!usuario.getJuegosPublicados().isEmpty()) {
-            System.out.println("   Desvinculando " + usuario.getJuegosPublicados().size() + " juegos publicados");
-            for (var juego : usuario.getJuegosPublicados()) {
-                juego.setProveedor(null); // Desvincular proveedor
-                System.out.println("      - " + juego.getTitulo() + " (los clientes conservan sus compras)");
-            }
+        // PASO 2: ELIMINAR transacciones de proveedor de las compras del usuario (si es cliente)
+        // Estas son las ganancias que otros proveedores obtuvieron de este cliente
+        int transaccionesProveedorCompras = entityManager.createQuery(
+            "SELECT COUNT(tp) FROM TransaccionProveedor tp WHERE tp.compra.usuario.id = :usuarioId", Long.class)
+            .setParameter("usuarioId", id)
+            .getSingleResult().intValue();
+        
+        if (transaccionesProveedorCompras > 0) {
+            System.out.println("   � Eliminando " + transaccionesProveedorCompras + " transacciones de proveedor de compras");
+            entityManager.createQuery("DELETE FROM TransaccionProveedor tp WHERE tp.compra.usuario.id = :usuarioId")
+                .setParameter("usuarioId", id)
+                .executeUpdate();
         }
         
-        // 3. ELIMINAR compras del usuario (si es cliente)
-        // Esto NO afecta a los juegos ni a las transacciones de plataforma
-        if (!usuario.getCompras().isEmpty()) {
-            System.out.println(" Eliminando " + usuario.getCompras().size() + " compras del usuario");
+        // PASO 3: DESVINCULAR transacciones de plataforma de las compras del usuario (se preservan)
+        int transaccionesPlataformaCompras = entityManager.createQuery(
+            "SELECT COUNT(tp) FROM TransaccionPlataforma tp WHERE tp.compra.usuario.id = :usuarioId", Long.class)
+            .setParameter("usuarioId", id)
+            .getSingleResult().intValue();
+        
+        if (transaccionesPlataformaCompras > 0) {
+            System.out.println("   � Preservando " + transaccionesPlataformaCompras + " transacciones de plataforma de compras");
+            entityManager.createQuery("UPDATE TransaccionPlataforma tp SET tp.usuario = null, tp.compra = null WHERE tp.compra.usuario.id = :usuarioId")
+                .setParameter("usuarioId", id)
+                .executeUpdate();
         }
         
-        // 4. ELIMINAR transacciones de proveedor (si es proveedor)
-        if (!usuario.getTransacciones().isEmpty()) {
-            System.out.println(" Eliminando " + usuario.getTransacciones().size() + " transacciones de proveedor");
+        // PASO 4: DESVINCULAR transacciones de plataforma del usuario (se preservan)
+        if (transaccionesPlataforma > 0) {
+            System.out.println("   📊 Preservando " + transaccionesPlataforma + " transacciones de plataforma del usuario");
+            entityManager.createQuery("UPDATE TransaccionPlataforma t SET t.usuario = null WHERE t.usuario.id = :usuarioId")
+                .setParameter("usuarioId", id)
+                .executeUpdate();
         }
         
-        // 5. ELIMINAR físicamente el usuario
-        usuarioRepository.delete(usuario);
+        // PASO 5: ELIMINAR compras del usuario (ahora sin transacciones asociadas)
+        if (compras > 0) {
+            System.out.println("   🛒 Eliminando " + compras + " compras del usuario");
+            entityManager.createQuery("DELETE FROM Compra c WHERE c.usuario.id = :usuarioId")
+                .setParameter("usuarioId", id)
+                .executeUpdate();
+        }
         
-        System.out.println("Usuario eliminado completamente de la base de datos");
-        System.out.println(" Email liberado: " + emailOriginal + " (puede crear cuenta nueva)");
-        System.out.println(" Transacciones de plataforma preservadas (historial de ganancias)");
-        System.out.println(" Juegos publicados conservados (clientes mantienen sus compras)");
+        // PASO 4: DESACTIVAR Y DESVINCULAR juegos publicados
+        if (juegosPublicados > 0) {
+            System.out.println("   🎮 Desactivando " + juegosPublicados + " juegos publicados");
+            entityManager.createQuery("UPDATE Juego j SET j.activo = false, j.proveedor = null WHERE j.proveedor.id = :usuarioId")
+                .setParameter("usuarioId", id)
+                .executeUpdate();
+            System.out.println("      ✅ Juegos desactivados (clientes conservan sus compras)");
+        }
+        
+        // PASO 5: Limpiar el contexto de persistencia
+        entityManager.flush();
+        entityManager.clear();
+        
+        // PASO 6: ELIMINAR físicamente el usuario
+        entityManager.createQuery("DELETE FROM Usuario u WHERE u.id = :usuarioId")
+            .setParameter("usuarioId", id)
+            .executeUpdate();
+        
+        System.out.println("✅ Usuario eliminado completamente de la base de datos");
+        System.out.println("   ✅ Email liberado: " + emailOriginal + " (puede crear cuenta nueva)");
+        System.out.println("   ✅ Transacciones de plataforma preservadas (historial de ganancias)");
+        System.out.println("   ✅ Juegos desactivados (no aparecen en catálogo)");
+        System.out.println("   ✅ Clientes conservan sus juegos comprados en biblioteca");
     }
     
     // Obtiene la lista completa de todos los usuarios ACTIVOS (excluye eliminados)

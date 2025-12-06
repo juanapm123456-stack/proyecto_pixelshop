@@ -74,9 +74,11 @@ public class TransaccionPlataforma {
         validarRelaciones();
     }
     
-    //  Validación: COMISION_VENTA requiere Compra
+    //  Validación: COMISION_VENTA requiere Compra (solo al crear, no al actualizar)
     private void validarRelaciones() {
-        if (tipoTransaccion == TipoTransaccion.COMISION_VENTA) {
+        // Solo validar en creación (cuando tiene ID null)
+        // Permitir compra = null en actualizaciones (cuando se elimina el usuario)
+        if (this.id == null && tipoTransaccion == TipoTransaccion.COMISION_VENTA) {
             if (compra == null) {
                 throw new IllegalStateException("COMISION_VENTA requiere una Compra asociada");
             }
