@@ -208,7 +208,7 @@ public class ServicioPayPalImpl implements IServicioPayPal {
             payoutRequest.put("items", List.of(item));
             
             // Log para depuración
-            System.out.println("📤 Enviando payout a PayPal:");
+            System.out.println(" Enviando payout a PayPal:");
             System.out.println("   Email: " + emailPaypal);
             System.out.println("   Monto: " + montoFormateado + " EUR");
             System.out.println("   Descripción: " + descripcion);

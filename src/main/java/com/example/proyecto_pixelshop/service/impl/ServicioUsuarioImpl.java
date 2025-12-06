@@ -94,7 +94,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
         
         String emailOriginal = usuario.getEmail();
-        System.out.println("🗑️ Eliminando usuario ID " + id + " (" + emailOriginal + ")");
+        System.out.println(" Eliminando usuario ID " + id + " (" + emailOriginal + ")");
         
         // Contar elementos antes de eliminar
         int transaccionesPlataforma = usuario.getTransaccionesPlataforma().size();
@@ -104,7 +104,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         
         // PASO 1: ELIMINAR transacciones de proveedor del usuario (ganancias del proveedor)
         if (transaccionesProveedor > 0) {
-            System.out.println("   💰 Eliminando " + transaccionesProveedor + " transacciones de proveedor");
+            System.out.println(" Eliminando " + transaccionesProveedor + " transacciones de proveedor");
             entityManager.createQuery("DELETE FROM TransaccionProveedor t WHERE t.usuario.id = :usuarioId")
                 .setParameter("usuarioId", id)
                 .executeUpdate();
@@ -118,7 +118,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
             .getSingleResult().intValue();
         
         if (transaccionesProveedorCompras > 0) {
-            System.out.println("   � Eliminando " + transaccionesProveedorCompras + " transacciones de proveedor de compras");
+            System.out.println(" Eliminando " + transaccionesProveedorCompras + " transacciones de proveedor de compras");
             entityManager.createQuery("DELETE FROM TransaccionProveedor tp WHERE tp.compra.usuario.id = :usuarioId")
                 .setParameter("usuarioId", id)
                 .executeUpdate();
@@ -131,7 +131,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
             .getSingleResult().intValue();
         
         if (transaccionesPlataformaCompras > 0) {
-            System.out.println("   � Preservando " + transaccionesPlataformaCompras + " transacciones de plataforma de compras");
+            System.out.println(" Preservando " + transaccionesPlataformaCompras + " transacciones de plataforma de compras");
             entityManager.createQuery("UPDATE TransaccionPlataforma tp SET tp.usuario = null, tp.compra = null WHERE tp.compra.usuario.id = :usuarioId")
                 .setParameter("usuarioId", id)
                 .executeUpdate();
@@ -139,7 +139,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         
         // PASO 4: DESVINCULAR transacciones de plataforma del usuario (se preservan)
         if (transaccionesPlataforma > 0) {
-            System.out.println("   📊 Preservando " + transaccionesPlataforma + " transacciones de plataforma del usuario");
+            System.out.println("  Preservando " + transaccionesPlataforma + " transacciones de plataforma del usuario");
             entityManager.createQuery("UPDATE TransaccionPlataforma t SET t.usuario = null WHERE t.usuario.id = :usuarioId")
                 .setParameter("usuarioId", id)
                 .executeUpdate();
@@ -147,7 +147,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         
         // PASO 5: ELIMINAR compras del usuario (ahora sin transacciones asociadas)
         if (compras > 0) {
-            System.out.println("   🛒 Eliminando " + compras + " compras del usuario");
+            System.out.println(" Eliminando " + compras + " compras del usuario");
             entityManager.createQuery("DELETE FROM Compra c WHERE c.usuario.id = :usuarioId")
                 .setParameter("usuarioId", id)
                 .executeUpdate();
@@ -155,11 +155,11 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         
         // PASO 4: DESACTIVAR Y DESVINCULAR juegos publicados
         if (juegosPublicados > 0) {
-            System.out.println("   🎮 Desactivando " + juegosPublicados + " juegos publicados");
+            System.out.println("  Desactivando " + juegosPublicados + " juegos publicados");
             entityManager.createQuery("UPDATE Juego j SET j.activo = false, j.proveedor = null WHERE j.proveedor.id = :usuarioId")
                 .setParameter("usuarioId", id)
                 .executeUpdate();
-            System.out.println("      ✅ Juegos desactivados (clientes conservan sus compras)");
+            System.out.println(" Juegos desactivados (clientes conservan sus compras)");
         }
         
         // PASO 5: Limpiar el contexto de persistencia
@@ -171,11 +171,11 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
             .setParameter("usuarioId", id)
             .executeUpdate();
         
-        System.out.println("✅ Usuario eliminado completamente de la base de datos");
-        System.out.println("   ✅ Email liberado: " + emailOriginal + " (puede crear cuenta nueva)");
-        System.out.println("   ✅ Transacciones de plataforma preservadas (historial de ganancias)");
-        System.out.println("   ✅ Juegos desactivados (no aparecen en catálogo)");
-        System.out.println("   ✅ Clientes conservan sus juegos comprados en biblioteca");
+        System.out.println(" Usuario eliminado completamente de la base de datos");
+        System.out.println("  Email liberado: " + emailOriginal + " (puede crear cuenta nueva)");
+        System.out.println("  Transacciones de plataforma preservadas (historial de ganancias)");
+        System.out.println(" Juegos desactivados (no aparecen en catálogo)");
+        System.out.println(" Clientes conservan sus juegos comprados en biblioteca");
     }
     
     // Obtiene la lista completa de todos los usuarios ACTIVOS (excluye eliminados)
