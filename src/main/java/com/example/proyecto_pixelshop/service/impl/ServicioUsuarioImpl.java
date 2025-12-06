@@ -80,10 +80,10 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         return usuarioRepository.save(existente);
     }
     
-    // Elimina un usuario de forma LÓGICA (marca como inactivo, NO borra físicamente)
-    // - Preserva: compras, transacciones y juegos (para que los clientes conserven sus compras)
-    // - Desactiva: juegos publicados (para que no aparezcan en el catálogo)
-    // - Modifica: email (para liberar el email y permitir crear cuenta nueva)
+    // Elimina un usuario de forma FÍSICA (borra completamente de la base de datos)
+    // PRESERVA: Solo las transacciones de plataforma (para historial de ganancias)
+    // ELIMINA: Usuario, compras, transacciones de proveedor
+    // DESVINCULA: Juegos (quedan huérfanos pero los clientes conservan sus compras)
     @Override
     public void eliminar(Integer id) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -91,34 +91,43 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         
         String emailOriginal = usuario.getEmail();
         System.out.println(" Eliminando usuario ID " + id + " (" + emailOriginal + ")");
-        System.out.println("   - Compras a preservar: " + usuario.getCompras().size());
-        System.out.println("   - Juegos a desactivar: " + usuario.getJuegosPublicados().size());
         
-        // Desactivar los juegos publicados por el usuario (borrado lógico)
-        // Esto permite que los clientes conserven sus compras
-        if (!usuario.getJuegosPublicados().isEmpty()) {
-            int cantidadJuegos = usuario.getJuegosPublicados().size();
-            for (var juego : usuario.getJuegosPublicados()) {
-                juego.setActivo(false);
-                System.out.println("    Juego desactivado: " + juego.getTitulo());
+        // 1. DESVINCULAR transacciones de plataforma (se preservan para historial)
+        if (!usuario.getTransaccionesPlataforma().isEmpty()) {
+            System.out.println("  Preservando " + usuario.getTransaccionesPlataforma().size() + " transacciones de plataforma");
+            for (var transaccion : usuario.getTransaccionesPlataforma()) {
+                transaccion.setUsuario(null); // Desvincular usuario
             }
-            System.out.println("    " + cantidadJuegos + " juegos desactivados (no aparecerán en el catálogo)");
         }
         
-        // Modificar el email para liberar el email original
-        // Formato: email_original_DELETED_timestamp_id
-        String emailEliminado = emailOriginal + "_DELETED_" + System.currentTimeMillis() + "_" + id;
-        usuario.setEmail(emailEliminado);
+        // 2. DESVINCULAR juegos publicados (quedan huérfanos pero activos)
+        // Los clientes que compraron estos juegos los conservan
+        if (!usuario.getJuegosPublicados().isEmpty()) {
+            System.out.println("   Desvinculando " + usuario.getJuegosPublicados().size() + " juegos publicados");
+            for (var juego : usuario.getJuegosPublicados()) {
+                juego.setProveedor(null); // Desvincular proveedor
+                System.out.println("      - " + juego.getTitulo() + " (los clientes conservan sus compras)");
+            }
+        }
         
-        // Borrado lógico del usuario: marcar como inactivo
-        usuario.setActivo(false);
-        usuarioRepository.save(usuario);
+        // 3. ELIMINAR compras del usuario (si es cliente)
+        // Esto NO afecta a los juegos ni a las transacciones de plataforma
+        if (!usuario.getCompras().isEmpty()) {
+            System.out.println(" Eliminando " + usuario.getCompras().size() + " compras del usuario");
+        }
         
-        System.out.println(" Usuario marcado como inactivo (borrado lógico)");
-        System.out.println("  Email modificado: " + emailOriginal + " → " + emailEliminado);
-        System.out.println("  Email liberado para crear cuenta nueva");
-        System.out.println("  Compras y transacciones preservadas");
-        System.out.println("  Los clientes conservan sus juegos comprados");
+        // 4. ELIMINAR transacciones de proveedor (si es proveedor)
+        if (!usuario.getTransacciones().isEmpty()) {
+            System.out.println(" Eliminando " + usuario.getTransacciones().size() + " transacciones de proveedor");
+        }
+        
+        // 5. ELIMINAR físicamente el usuario
+        usuarioRepository.delete(usuario);
+        
+        System.out.println("Usuario eliminado completamente de la base de datos");
+        System.out.println(" Email liberado: " + emailOriginal + " (puede crear cuenta nueva)");
+        System.out.println(" Transacciones de plataforma preservadas (historial de ganancias)");
+        System.out.println(" Juegos publicados conservados (clientes mantienen sus compras)");
     }
     
     // Obtiene la lista completa de todos los usuarios ACTIVOS (excluye eliminados)

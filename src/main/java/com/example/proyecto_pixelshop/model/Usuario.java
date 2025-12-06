@@ -48,17 +48,18 @@ public class Usuario {
     private LocalDateTime fechaActualizacion;
     
     // Relaciones
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Compra> compras = new ArrayList<>();
     
-    @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "proveedor", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Juego> juegosPublicados = new ArrayList<>();
     
     
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransaccionProveedor> transacciones = new ArrayList<>();
     
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    // NO eliminar transacciones de plataforma (se preservan para historial de ganancias)
+    @OneToMany(mappedBy = "usuario", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<TransaccionPlataforma> transaccionesPlataforma = new ArrayList<>();
     
     // Constructores

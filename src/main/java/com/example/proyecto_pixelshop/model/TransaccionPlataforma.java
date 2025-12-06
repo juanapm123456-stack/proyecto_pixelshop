@@ -29,8 +29,9 @@ public class TransaccionPlataforma {
     private LocalDateTime fechaTransaccion;
     
     // RELACIONES
+    // nullable=true para preservar transacciones cuando se elimina el usuario
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id", nullable = true)
     private Usuario usuario;
     
     //  Relación 1:1 con Compra (SIEMPRE - incluso para PAGO_PUBLICACION si aplica)

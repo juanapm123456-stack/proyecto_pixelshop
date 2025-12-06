@@ -13,8 +13,9 @@ public class Juego {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
+    // nullable=true para preservar juegos cuando se elimina el proveedor
     @ManyToOne
-    @JoinColumn(name = "proveedor_id", nullable = false)
+    @JoinColumn(name = "proveedor_id", nullable = true)
     private Usuario proveedor;
     
     @Column(nullable = false, length = 200)
