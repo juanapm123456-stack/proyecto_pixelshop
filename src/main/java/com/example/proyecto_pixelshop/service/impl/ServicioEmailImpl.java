@@ -23,6 +23,9 @@ public class ServicioEmailImpl implements IServicioEmail {
     @Value("${email.from}")
     private String fromEmail;
 
+    @Value("${app.base-url}")
+    private String baseUrl;
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     // Envía un email de bienvenida al usuario cuando se registra en la plataforma
@@ -114,7 +117,7 @@ public class ServicioEmailImpl implements IServicioEmail {
     // Envía un email de recuperación de contraseña con un token temporal (expira en 1 hora)
     public void enviarRecuperacionPassword(String email, String nombreUsuario, String token) {
         try {
-            String enlaceRecuperacion = "http://localhost:8080/auth/reset-password?token=" + token;
+            String enlaceRecuperacion = baseUrl + "/auth/reset-password?token=" + token;
             
             Context context = new Context();
             context.setVariable("nombreUsuario", nombreUsuario);

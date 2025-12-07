@@ -10,6 +10,7 @@ import com.example.proyecto_pixelshop.service.interfaz.IServicioUsuario;
 import com.example.proyecto_pixelshop.service.interfaz.IServicioCompra;
 import com.paypal.orders.Order;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +28,9 @@ public class PayPalController extends BaseController {
     @Autowired private IServicioUsuario usuarioService;
     @Autowired private IServicioCompra compraService;
     @Autowired private IServicioEmail emailService;
+    
+    @Value("${app.base-url}")
+    private String baseUrl;
     
     // Muestra la página de checkout con opciones de pago
     @GetMapping("/checkout/{juegoId}")
@@ -67,8 +71,8 @@ public class PayPalController extends BaseController {
 
             System.out.println("Juego encontrado: " + juego.getTitulo() + " - Precio: " + juego.getPrecio());
             
-            String returnUrl = "http://localhost:8080/paypal/success?juegoId=" + juegoId;
-            String cancelUrl = "http://localhost:8080/paypal/cancel?juegoId=" + juegoId;
+            String returnUrl = baseUrl + "/paypal/success?juegoId=" + juegoId;
+            String cancelUrl = baseUrl + "/paypal/cancel?juegoId=" + juegoId;
 
             String orderId = payPalService.crearOrden(juego, returnUrl, cancelUrl);
             
