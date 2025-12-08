@@ -67,10 +67,15 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
         existente.setNombre(usuario.getNombre());
         existente.setEmail(usuario.getEmail());
         
-        // Solo actualizar contraseña si se proporcionó una nueva
-        if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
+        /* Solo actualizar contraseña si se proporcionó una nueva (NO un hash BCrypt)
+           FIX: Verificar que NO sea un hash BCrypt para evitar doble encriptación
+        if (usuario.getPassword() != null && 
+            !usuario.getPassword().isEmpty() && 
+            !usuario.getPassword().startsWith("$2a$") && 
+            !usuario.getPassword().startsWith("$2b$") && 
+            !usuario.getPassword().startsWith("$2y$")) {
             existente.setPassword(passwordEncoder.encode(usuario.getPassword()));
-        }
+        }*/
         
         existente.setRol(usuario.getRol());
         existente.setCifNif(usuario.getCifNif());
