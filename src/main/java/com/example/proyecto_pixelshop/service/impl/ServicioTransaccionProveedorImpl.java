@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -177,7 +179,16 @@ public class ServicioTransaccionProveedorImpl implements IServicioTransaccionPro
     // MÉTODOS AUXILIARES PRIVADOS
     // ========================================
     
+    /**
+     * Redondea un valor monetario a 2 decimales usando BigDecimal para mayor precisión.
+     * Usa HALF_UP (redondeo bancario estándar): 2.995 → 3.00, 2.994 → 2.99
+     */
     private Double redondear(Double valor) {
-        return Math.round(valor * 100.0) / 100.0;
+        if (valor == null) return 0.0;
+        
+        // Usar BigDecimal para redondeo preciso (evita errores de punto flotante)
+        return new BigDecimal(valor.toString())
+            .setScale(2, RoundingMode.HALF_UP)
+            .doubleValue();
     }
 }

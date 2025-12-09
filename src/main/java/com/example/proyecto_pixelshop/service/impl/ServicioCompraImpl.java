@@ -134,18 +134,18 @@ public class ServicioCompraImpl implements IServicioCompra {
         Double precioPagado = compraActualizada.getPrecioPagado();
         Double comisionPlataforma = Math.round(precioPagado * 0.15 * 100.0) / 100.0;
         
-        System.out.println("ðŸ’° Registrando transacciones para compra ID: " + compraActualizada.getId());
-        System.out.println("   - Precio pagado: " + precioPagado + "â‚¬");
-        System.out.println("   - Comisión plataforma (15%): " + comisionPlataforma + "â‚¬");
-        System.out.println("   - Monto proveedor (85%): " + (precioPagado * 0.85) + "â‚¬");
+        System.out.println("-Registrando transacciones para compra ID: " + compraActualizada.getId());
+        System.out.println(" - Precio pagado: " + precioPagado );
+        System.out.println(" - Comisión plataforma (15%): " + comisionPlataforma );
+        System.out.println(" - Monto proveedor (85%): " + (precioPagado * 0.85) );
         
         // Crear transacción de proveedor (85% para proveedor)
         transaccionProveedorService.crear(compraActualizada);
-        System.out.println("âœ… TransaccionProveedor creada");
+        System.out.println(" TransaccionProveedor creada");
         
         // Crear transacción de plataforma (15% comisión)
         transaccionPlataformaService.registrarComisionVenta(compraActualizada.getId(), comisionPlataforma);
-        System.out.println("âœ… TransaccionPlataforma (comisión) creada");
+        System.out.println(" TransaccionPlataforma (comisión) creada");
         
         return compraActualizada;
     }
